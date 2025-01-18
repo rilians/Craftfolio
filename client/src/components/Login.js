@@ -38,9 +38,9 @@ function Login() {
 
       // Navigate to admin page on success
       alert("Login successful!");
-      navigate("/admin");
-    } catch (err) {
-      console.error("Error during login:", err);
+console.log("Navigating to /admin...");
+navigate("/admin");
+
 
       // Handle specific error status
       if (err.response) {
