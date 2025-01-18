@@ -30,25 +30,25 @@ function AdminPanel() {
     fetchProjects(token);
   }, [navigate]);
 
-  const fetchProjects = async () => {
-  const token = localStorage.getItem("token");
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
-
-  try {
-    const res = await axios.get(`${BACKEND_URL}/api/projects`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setProjects(res.data.projects || []);
-  } catch (err) {
-    console.error(err);
-    if (err.response && err.response.status === 401) {
-      alert("Unauthorized access. Redirecting to login.");
-      navigate("/login");
+  const fetchProjects = async (token) => {
+    setIsLoading(true);
+    try {
+      const res = await axios.get(`${BACKEND_URL}/api/projects`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProjects(res.data.projects || []);
+    } catch (err) {
+      console.error("Error fetching projects:", err);
+      if (err.response && err.response.status === 401) {
+        alert("Unauthorized access. Redirecting to login.");
+        navigate("/login");
+      } else {
+        setErrorMessage("Failed to fetch projects. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
-  }
-};
-
-
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -95,7 +95,7 @@ function AdminPanel() {
       });
       fetchProjects(token);
     } catch (err) {
-      console.error(err);
+      console.error("Error saving project:", err);
       setErrorMessage("Failed to save project. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -116,7 +116,7 @@ function AdminPanel() {
       setProjects(projects.filter((project) => project._id !== id));
       alert("Project deleted successfully");
     } catch (err) {
-      console.error(err);
+      console.error("Error deleting project:", err);
       setErrorMessage("Failed to delete project. Please try again.");
     }
   };
@@ -134,14 +134,12 @@ function AdminPanel() {
           </button>
         </div>
 
-        {/* Error Message */}
         {errorMessage && (
           <div className="bg-red-100 text-red-800 p-3 rounded mb-4">
             {errorMessage}
           </div>
         )}
 
-        {/* Form Tambah/Edit Proyek */}
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <input
@@ -207,7 +205,6 @@ function AdminPanel() {
           </button>
         </form>
 
-        {/* Daftar Proyek */}
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Project List</h2>
         {isLoading ? (
           <p className="text-center text-gray-600">Loading projects...</p>
