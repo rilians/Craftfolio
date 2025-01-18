@@ -14,25 +14,19 @@ function About() {
 
   useEffect(() => {
     // Fetch about data
-    const fetchData = async () => {
-      try {
-        const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/about`;
-        console.log("Fetching data from:", apiUrl);
-
-        const response = await axios.get(apiUrl);
-        setAbout(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/about`) // Menggunakan template literal
+      .then((res) => {
+        console.log("Data fetched:", res.data); // Debugging untuk memeriksa data yang diterima
+        setAbout(res.data);
+      })
+      .catch((err) => console.error("Error fetching data:", err));
 
     // Initialize particles
     const initParticles = async () => {
       try {
         const particlesEngine = await loadFull();
-        await particlesEngine.load("tsparticles", {
+        particlesEngine.load("tsparticles", {
           background: { color: { value: "#001F54" } },
           fpsLimit: 60,
           interactivity: {
@@ -58,19 +52,16 @@ function About() {
 
     initParticles();
 
-    // Cleanup particles
+    // Cleanup particles when the component unmounts
     return () => {
       const container = document.getElementById("tsparticles");
       if (container) {
-        container.innerHTML = "";
+        container.innerHTML = ""; // Clear the particles container
       }
     };
   }, []);
 
-  // Handle loading and error states
-  if (!about) {
-    return <p className="text-center text-gray-600">Loading...</p>;
-  }
+  if (!about) return <p className="text-center text-gray-600">Loading...</p>;
 
   return (
     <div className="relative">
@@ -102,14 +93,14 @@ function About() {
             <motion.img
               src={
                 about.profilePicture
-                  ? `${process.env.REACT_APP_BACKEND_URL}${about.profilePicture}`
+                  ? `${process.env.REACT_APP_BACKEND_URL}${about.profilePicture}` // Perbaikan URL gambar
                   : "https://via.placeholder.com/150"
               }
-              alt="Profile"
               className="w-32 h-32 mx-auto rounded-full mb-4 shadow-md border-4 border-[#FFC300]"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.6 }}
+              alt="Profile"
             />
             <h1 className="text-4xl font-bold mb-2 text-[#001F54]">{about.name}</h1>
             <p className="text-lg text-gray-600 mb-4">{about.description}</p>
@@ -117,21 +108,21 @@ function About() {
 
           {/* Skills Section */}
           <h2 className="text-2xl font-semibold mb-6 text-[#001F54]">Skills</h2>
-          <motion.div
-            className="grid grid-cols-2 gap-4 md:grid-cols-4"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              hidden: { opacity: 0, scale: 0.8 },
-              visible: {
-                opacity: 1,
-                scale: 1,
-                transition: { staggerChildren: 0.2 },
-              },
-            }}
-          >
-            {about.skills && about.skills.length > 0 ? (
-              about.skills.map((skill, index) => (
+          {about.skills && about.skills.length > 0 ? ( // Periksa jika skills ada dan tidak kosong
+            <motion.div
+              className="grid grid-cols-2 gap-4 md:grid-cols-4"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0, scale: 0.8 },
+                visible: {
+                  opacity: 1,
+                  scale: 1,
+                  transition: { staggerChildren: 0.2 },
+                },
+              }}
+            >
+              {about.skills.map((skill, index) => (
                 <motion.div
                   key={index}
                   className="p-4 bg-gradient-to-r from-[#00A6FB] to-[#FFC300] text-white rounded shadow-lg hover:shadow-2xl transition transform hover:scale-105"
@@ -140,11 +131,11 @@ function About() {
                 >
                   <h3 className="text-lg font-bold">{skill}</h3>
                 </motion.div>
-              ))
-            ) : (
-              <p className="text-center text-gray-600">No skills available</p>
-            )}
-          </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <p className="text-center text-gray-600">No skills available</p> // Jika skills kosong
+          )}
 
           {/* Contact Me Button */}
           <div className="mt-10 text-center">
