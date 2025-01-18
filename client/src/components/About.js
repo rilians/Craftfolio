@@ -16,7 +16,7 @@ function About() {
   useEffect(() => {
     // Fetch about data
     axios
-      .get("${process.env.REACT_APP_BACKEND_URL}/api/about")
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/about`)
       .then((res) => setAbout(res.data))
       .catch((err) => console.error(err));
 
@@ -91,7 +91,7 @@ function About() {
             <motion.img
               src={
                 about.profilePicture
-                  ? `http://localhost:5000${about.profilePicture}`
+                  ? `${process.env.REACT_APP_BACKEND_URL}${about.profilePicture}`
                   : "https://via.placeholder.com/150"
               }
               className="w-32 h-32 mx-auto rounded-full mb-4 shadow-md border-4 border-[#FFC300]"
@@ -118,7 +118,7 @@ function About() {
               },
             }}
           >
-            {about.skills.map((skill, index) => (
+            {(about.skills || []).map((skill, index) => (
               <motion.div
                 key={index}
                 className="p-4 bg-gradient-to-r from-[#00A6FB] to-[#FFC300] text-white rounded shadow-lg hover:shadow-2xl transition transform hover:scale-105"
