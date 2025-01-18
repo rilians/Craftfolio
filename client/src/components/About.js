@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { loadFull } from "tsparticles";
+import { tsParticles } from "tsparticles";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -14,12 +14,17 @@ function About() {
   };
 
   useEffect(() => {
+    // Fetch about data
     const fetchData = async () => {
       try {
         const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/about`;
         console.log("Fetching data from:", apiUrl);
 
-        const response = await axios.get(apiUrl);
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${process.env.REACT_APP_API_TOKEN}`,
+          },
+        });
         setAbout(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -28,10 +33,10 @@ function About() {
 
     fetchData();
 
-    const initParticles = async () => {
-      try {
-        const particlesEngine = await loadFull();
-        particlesEngine.load("tsparticles", {
+    // Initialize particles
+    const initParticles = () => {
+      tsParticles
+        .load("tsparticles", {
           background: { color: { value: "#001F54" } },
           fpsLimit: 60,
           interactivity: {
@@ -49,10 +54,10 @@ function About() {
             move: { enable: true, speed: 2 },
             size: { value: 3 },
           },
+        })
+        .catch((error) => {
+          console.error("Error initializing particles:", error);
         });
-      } catch (error) {
-        console.error("Error initializing particles:", error);
-      }
     };
 
     initParticles();
