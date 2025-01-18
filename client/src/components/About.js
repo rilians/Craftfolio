@@ -14,13 +14,20 @@ function About() {
   };
 
   useEffect(() => {
-    // Fetch about data
-    axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/about`)
-      .then((res) => setAbout(res.data))
-      .catch((err) => console.error(err));
+    const fetchData = async () => {
+      try {
+        const apiUrl = `${process.env.REACT_APP_BACKEND_URL}/api/about`;
+        console.log("Fetching data from:", apiUrl);
 
-    // Initialize particles
+        const response = await axios.get(apiUrl);
+        setAbout(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+
     const initParticles = async () => {
       try {
         const particlesEngine = await loadFull();
@@ -50,7 +57,6 @@ function About() {
 
     initParticles();
 
-    // Cleanup particles when the component unmounts
     return () => {
       const container = document.getElementById("tsparticles");
       if (container) {
@@ -118,7 +124,7 @@ function About() {
               },
             }}
           >
-            {(about.skills || []).map((skill, index) => (
+            {about.skills.map((skill, index) => (
               <motion.div
                 key={index}
                 className="p-4 bg-gradient-to-r from-[#00A6FB] to-[#FFC300] text-white rounded shadow-lg hover:shadow-2xl transition transform hover:scale-105"
