@@ -16,7 +16,7 @@ function About() {
   useEffect(() => {
     // Fetch about data
     axios
-      .get("http://localhost:5000/api/about")
+      .get("${process.env.REACT_APP_BACKEND_URL}/api/about")
       .then((res) => setAbout(res.data))
       .catch((err) => console.error(err));
 
