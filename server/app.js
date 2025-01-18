@@ -18,7 +18,11 @@ const app = express(); // Deklarasikan app
 
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: "https://craftfolio-five.vercel.app/",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  }));
+  
 app.use(bodyParser.json());
 
 // Routes
