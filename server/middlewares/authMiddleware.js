@@ -1,19 +1,16 @@
 const jwt = require("jsonwebtoken");
 
-const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1]; // Format: "Bearer <token>"
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Pastikan JWT_SECRET sudah didefinisikan di `.env`
-    req.user = decoded; // Simpan data pengguna
+  if (!token) return res.status(401).json({ message: "No token provided." });
+
+  jwt.verify(token, process.env.JWT_SECRET || "secretkey", (err, user) => {
+    if (err) return res.status(403).json({ message: "Invalid token." });
+    req.user = user;
     next();
-  } catch (err) {
-    console.error("Token verification failed:", err.message);
-    return res.status(401).json({ message: "Invalid token" });
-  }
+  });
 };
 
-module.exports = authMiddleware;
+module.exports = authenticateToken;
