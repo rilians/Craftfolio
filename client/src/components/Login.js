@@ -20,40 +20,34 @@ function Login() {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setErrorMessage(""); // Reset error message
+  e.preventDefault();
+  setErrorMessage("");
 
-    if (!validateForm()) return;
+  if (!validateForm()) return;
 
-    try {
-      const response = await axios.post(`${BACKEND_URL}/api/auth/login`, {
-        username: username.trim(),
-        password: password.trim(),
-      });
+  try {
+    const response = await axios.post(`${BACKEND_URL}/api/auth/login`, {
+      username,
+      password,
+    });
 
-      const { token } = response.data;
+    const { token } = response.data;
+    console.log("Token received:", token);
 
-      // Save token securely in localStorage
-      localStorage.setItem("token", token);
-
-      // Navigate to admin page on success
-      alert("Login successful!");
-console.log("Navigating to /admin...");
-navigate("/admin");
-
-
-      // Handle specific error status
-      if (err.response) {
-        if (err.response.status === 401) {
-          setErrorMessage("Invalid username or password.");
-        } else {
-          setErrorMessage("An unexpected error occurred. Please try again.");
-        }
-      } else {
-        setErrorMessage("Unable to connect to the server. Please check your connection.");
-      }
+    localStorage.setItem("token", token);
+    alert("Login successful!");
+    console.log("Navigating to /admin...");
+    navigate("/admin");
+  } catch (err) {
+    console.error("Login error:", err);
+    if (err.response && err.response.status === 401) {
+      setErrorMessage("Invalid username or password.");
+    } else {
+      setErrorMessage("An unexpected error occurred. Please try again later.");
     }
-  };
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 flex justify-center items-center">
