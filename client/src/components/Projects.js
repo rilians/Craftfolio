@@ -2,13 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./styles.css"; // Pastikan file styles.css diimpor dengan benar
 
-const LoadingSpinner = () => (
-  <div className="spinner mx-auto"></div>
-);
+const LoadingSpinner = () => <div className="spinner mx-auto"></div>;
 
 function Projects() {
   const [projects, setProjects] = useState([]);
-  const [categories, setCategories] = useState(["All", "Frontend", "Backend", "Fullstack"]);
+  const [categories] = useState(["All", "Frontend", "Backend", "Fullstack"]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,28 +14,26 @@ function Projects() {
   const [isLoading, setIsLoading] = useState(true);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
   useEffect(() => {
     setIsLoading(true);
     axios
       .get(
-        `http://localhost:5000/api/projects?page=${currentPage}&limit=5&search=${search}&category=${selectedCategory}`
+        `${BACKEND_URL}/api/projects?page=${currentPage}&limit=5&search=${search}&category=${selectedCategory}`
       )
       .then((res) => {
-        setProjects(res.data.projects);
-        setTotalPages(res.data.totalPages);
+        setProjects(res.data.projects || []);
+        setTotalPages(res.data.totalPages || 1);
         setIsLoading(false);
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Error fetching projects:", err);
         setIsLoading(false);
       });
 
     const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollToTop(true);
-      } else {
-        setShowScrollToTop(false);
-      }
+      setShowScrollToTop(window.scrollY > 300);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -45,16 +41,16 @@ function Projects() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [currentPage, search, selectedCategory]);
+  }, [currentPage, search, selectedCategory, BACKEND_URL]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
-    setCurrentPage(1); // Reset halaman ke 1 saat pencarian berubah
+    setCurrentPage(1); // Reset ke halaman pertama saat search berubah
   };
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
-    setCurrentPage(1); // Reset halaman ke 1 saat kategori berubah
+    setCurrentPage(1); // Reset ke halaman pertama saat kategori berubah
   };
 
   const handlePageChange = (page) => {
@@ -99,22 +95,18 @@ function Projects() {
         {isLoading ? (
           <LoadingSpinner />
         ) : projects.length > 0 ? (
-          projects.map((project, index) => (
+          projects.map((project) => (
             <div
-              key={index}
+              key={project._id}
               className="bg-white rounded-lg shadow-lg p-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
             >
               <img
-                src={`http://localhost:5000${project.thumbnail}`}
+                src={`${BACKEND_URL}${project.thumbnail}`}
                 alt={project.title}
                 className="w-full h-48 object-cover rounded"
               />
-              <h3 className="text-xl font-bold mt-4 text-gray-800">
-                {project.title}
-              </h3>
-              <p className="text-gray-600 text-sm mt-2">
-                {project.description}
-              </p>
+              <h3 className="text-xl font-bold mt-4 text-gray-800">{project.title}</h3>
+              <p className="text-gray-600 text-sm mt-2">{project.description}</p>
               <a
                 href={project.link}
                 target="_blank"
@@ -138,7 +130,9 @@ function Projects() {
         >
           Prev
         </button>
-        <span className="mx-4">Page {projects.length === 0 ? 0 : currentPage} of {projects.length === 0 ? 0 : totalPages}</span>
+        <span className="mx-4">
+          Page {projects.length === 0 ? 0 : currentPage} of {projects.length === 0 ? 0 : totalPages}
+        </span>
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages || projects.length === 0}
