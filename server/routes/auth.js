@@ -1,37 +1,36 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 
 // Dummy user data
 const users = [
   {
     id: 1,
     username: "rilians",
-    password: bcrypt.hashSync("egiganteng123", 10), // Password hashed
+    password: "egiganteng123", // Gunakan ini hanya untuk pengujian (plaintext password)
   },
 ];
 
-// Endpoint for login
+// Endpoint untuk login
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
+  // Cari user berdasarkan username
   const user = users.find((u) => u.username === username);
-  if (!user) {
+
+  // Jika user tidak ditemukan atau password tidak sesuai
+  if (!user || user.password !== password) {
     return res.status(401).json({ message: "Invalid username or password." });
   }
 
-  const isPasswordValid = bcrypt.compareSync(password, user.password);
-  if (!isPasswordValid) {
-    return res.status(401).json({ message: "Invalid username or password." });
-  }
-
+  // Buat token JWT
   const token = jwt.sign(
     { id: user.id, username: user.username },
     process.env.JWT_SECRET || "secretkey",
     { expiresIn: "1h" }
   );
 
+  // Kembalikan token ke klien
   res.json({ token });
 });
 
