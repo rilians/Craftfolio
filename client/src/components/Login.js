@@ -7,10 +7,12 @@ function Login() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+
+  // Use environment variable for backend URL or fallback to localhost
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
   const validateForm = () => {
-    if (!username || !password) {
+    if (!username.trim() || !password.trim()) {
       setErrorMessage("Username and password are required.");
       return false;
     }
@@ -19,32 +21,36 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    // Reset error message
-    setErrorMessage("");
+    setErrorMessage(""); // Reset error message
 
     if (!validateForm()) return;
 
     try {
       const response = await axios.post(`${BACKEND_URL}/api/auth/login`, {
-        username,
-        password,
+        username: username.trim(),
+        password: password.trim(),
       });
 
       const { token } = response.data;
 
-      // Save token to localStorage
+      // Save token securely in localStorage
       localStorage.setItem("token", token);
 
-      // Display success message
+      // Navigate to admin page on success
       alert("Login successful!");
-      navigate("/admin"); // Navigate to admin page
+      navigate("/admin");
     } catch (err) {
-      console.error(err);
-      if (err.response && err.response.status === 401) {
-        setErrorMessage("Invalid username or password.");
+      console.error("Error during login:", err);
+
+      // Handle specific error status
+      if (err.response) {
+        if (err.response.status === 401) {
+          setErrorMessage("Invalid username or password.");
+        } else {
+          setErrorMessage("An unexpected error occurred. Please try again.");
+        }
       } else {
-        setErrorMessage("An unexpected error occurred. Please try again later.");
+        setErrorMessage("Unable to connect to the server. Please check your connection.");
       }
     }
   };
