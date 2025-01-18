@@ -15,12 +15,13 @@ function About() {
   useEffect(() => {
     // Fetch about data
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/about`) // Menggunakan template literal
-      .then((res) => {
-        console.log("Data fetched:", res.data); // Debugging untuk memeriksa data yang diterima
-        setAbout(res.data);
-      })
-      .catch((err) => console.error("Error fetching data:", err));
+  .get(`${process.env.REACT_APP_BACKEND_URL}/api/about`)
+  .then((res) => {
+    console.log("Data fetched:", res.data);
+    setAbout(res.data);
+  })
+  .catch((err) => console.error("Error fetching data:", err));
+
 
     // Initialize particles
     const initParticles = async () => {
