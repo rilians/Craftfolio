@@ -21,6 +21,7 @@ const app = express(); // Deklarasikan app
 app.use(cors({
     origin: "https://craftfolio-five.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Authorization", "Content-Type"],
   }));
   
 app.use(bodyParser.json());
