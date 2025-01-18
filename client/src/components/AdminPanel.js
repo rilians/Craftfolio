@@ -13,7 +13,10 @@ function AdminPanel() {
   });
   const [editingProject, setEditingProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,19 +32,21 @@ function AdminPanel() {
 
   const fetchProjects = async (token) => {
     setIsLoading(true);
+    setErrorMessage("");
     try {
-      const res = await axios.get("http://localhost:5000/api/projects", {
+      const res = await axios.get(`${BACKEND_URL}/api/projects`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProjects(res.data.projects || []);
-      setIsLoading(false);
     } catch (err) {
       console.error(err);
-      setIsLoading(false);
+      setErrorMessage("Failed to fetch projects. Please try again later.");
       if (err.response && err.response.status === 401) {
         alert("Session expired. Redirecting to login.");
         navigate("/login");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,12 +62,16 @@ function AdminPanel() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage("");
+
     const token = localStorage.getItem("token");
 
     try {
       if (editingProject) {
+        // Update project
         await axios.put(
-          `http://localhost:5000/api/projects/${editingProject._id}`,
+          `${BACKEND_URL}/api/projects/${editingProject._id}`,
           formData,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -71,7 +80,8 @@ function AdminPanel() {
         alert("Project updated successfully");
         setEditingProject(null);
       } else {
-        const res = await axios.post("http://localhost:5000/api/projects", formData, {
+        // Add new project
+        const res = await axios.post(`${BACKEND_URL}/api/projects`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProjects([...projects, res.data]);
@@ -86,22 +96,28 @@ function AdminPanel() {
       fetchProjects(token);
     } catch (err) {
       console.error(err);
-      alert("Failed to save project");
+      setErrorMessage("Failed to save project. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
 
+    if (!window.confirm("Are you sure you want to delete this project?")) {
+      return;
+    }
+
     try {
-      await axios.delete(`http://localhost:5000/api/projects/${id}`, {
+      await axios.delete(`${BACKEND_URL}/api/projects/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProjects(projects.filter((project) => project._id !== id));
       alert("Project deleted successfully");
     } catch (err) {
       console.error(err);
-      alert("Failed to delete project");
+      setErrorMessage("Failed to delete project. Please try again.");
     }
   };
 
@@ -117,6 +133,13 @@ function AdminPanel() {
             Logout
           </button>
         </div>
+
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="bg-red-100 text-red-800 p-3 rounded mb-4">
+            {errorMessage}
+          </div>
+        )}
 
         {/* Form Tambah/Edit Proyek */}
         <form onSubmit={handleSubmit} className="mb-8">
@@ -172,8 +195,15 @@ function AdminPanel() {
           <button
             type="submit"
             className="mt-6 w-full bg-gradient-to-r from-green-400 to-blue-500 text-white py-3 px-6 rounded-lg hover:shadow-xl transition"
+            disabled={isSubmitting}
           >
-            {editingProject ? "Update Project" : "Add Project"}
+            {isSubmitting
+              ? editingProject
+                ? "Updating Project..."
+                : "Adding Project..."
+              : editingProject
+              ? "Update Project"
+              : "Add Project"}
           </button>
         </form>
 
