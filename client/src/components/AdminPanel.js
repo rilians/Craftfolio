@@ -30,20 +30,24 @@ function AdminPanel() {
     fetchProjects(token);
   }, [navigate]);
 
-  const fetchProjects = async (token) => {
+  const fetchProjects = async () => {
+  const token = localStorage.getItem("token");
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
   try {
-    const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/projects`, {
+    const res = await axios.get(`${BACKEND_URL}/api/projects`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setProjects(res.data.projects || []);
   } catch (err) {
-    console.error("Error fetching projects:", err);
+    console.error(err);
     if (err.response && err.response.status === 401) {
       alert("Unauthorized access. Redirecting to login.");
       navigate("/login");
     }
   }
 };
+
 
 
   const handleLogout = () => {
