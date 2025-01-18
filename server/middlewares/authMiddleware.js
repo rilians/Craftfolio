@@ -8,6 +8,7 @@ const authenticateToken = (req, res, next) => {
 
   const token = authHeader.split(" ")[1];
 
+  // Verifikasi token
   if (!token) {
     return res.status(401).json({ message: "No token provided." });
   }
