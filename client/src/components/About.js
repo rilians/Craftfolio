@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 
 function About() {
   const [about, setAbout] = useState(null);
-
   const navigate = useNavigate();
 
   const handleNavigate = () => {
@@ -33,7 +32,7 @@ function About() {
     const initParticles = async () => {
       try {
         const particlesEngine = await loadFull();
-        particlesEngine.load("tsparticles", {
+        await particlesEngine.load("tsparticles", {
           background: { color: { value: "#001F54" } },
           fpsLimit: 60,
           interactivity: {
@@ -59,16 +58,19 @@ function About() {
 
     initParticles();
 
-    // Cleanup particles when the component unmounts
+    // Cleanup particles
     return () => {
       const container = document.getElementById("tsparticles");
       if (container) {
-        container.innerHTML = ""; // Clear the particles container
+        container.innerHTML = "";
       }
     };
   }, []);
 
-  if (!about) return <p className="text-center text-gray-600">Loading...</p>;
+  // Handle loading and error states
+  if (!about) {
+    return <p className="text-center text-gray-600">Loading...</p>;
+  }
 
   return (
     <div className="relative">
@@ -103,6 +105,7 @@ function About() {
                   ? `${process.env.REACT_APP_BACKEND_URL}${about.profilePicture}`
                   : "https://via.placeholder.com/150"
               }
+              alt="Profile"
               className="w-32 h-32 mx-auto rounded-full mb-4 shadow-md border-4 border-[#FFC300]"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -127,16 +130,20 @@ function About() {
               },
             }}
           >
-            {about.skills.map((skill, index) => (
-              <motion.div
-                key={index}
-                className="p-4 bg-gradient-to-r from-[#00A6FB] to-[#FFC300] text-white rounded shadow-lg hover:shadow-2xl transition transform hover:scale-105"
-                whileHover={{ scale: 1.2, rotate: 5 }}
-                whileTap={{ scale: 1 }}
-              >
-                <h3 className="text-lg font-bold">{skill}</h3>
-              </motion.div>
-            ))}
+            {about.skills && about.skills.length > 0 ? (
+              about.skills.map((skill, index) => (
+                <motion.div
+                  key={index}
+                  className="p-4 bg-gradient-to-r from-[#00A6FB] to-[#FFC300] text-white rounded shadow-lg hover:shadow-2xl transition transform hover:scale-105"
+                  whileHover={{ scale: 1.2, rotate: 5 }}
+                  whileTap={{ scale: 1 }}
+                >
+                  <h3 className="text-lg font-bold">{skill}</h3>
+                </motion.div>
+              ))
+            ) : (
+              <p className="text-center text-gray-600">No skills available</p>
+            )}
           </motion.div>
 
           {/* Contact Me Button */}
