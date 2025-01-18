@@ -8,7 +8,6 @@ function Login() {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  // Use environment variable for backend URL or fallback to localhost
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
   const validateForm = () => {
@@ -20,34 +19,32 @@ function Login() {
   };
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setErrorMessage("");
+    e.preventDefault();
+    setErrorMessage("");
 
-  if (!validateForm()) return;
+    if (!validateForm()) return;
 
-  try {
-    const response = await axios.post(`${BACKEND_URL}/api/auth/login`, {
-      username,
-      password,
-    });
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/auth/login`, {
+        username,
+        password,
+      });
 
-    const { token } = response.data;
-    console.log("Token received:", token);
+      const { token } = response.data;
+      if (!token) throw new Error("Token not received from server.");
 
-    localStorage.setItem("token", token);
-    alert("Login successful!");
-    console.log("Navigating to /admin...");
-    navigate("/admin");
-  } catch (err) {
-    console.error("Login error:", err);
-    if (err.response && err.response.status === 401) {
-      setErrorMessage("Invalid username or password.");
-    } else {
-      setErrorMessage("An unexpected error occurred. Please try again later.");
+      localStorage.setItem("token", token);
+      alert("Login successful!");
+      navigate("/admin");
+    } catch (err) {
+      console.error("Login error:", err);
+      if (err.response && err.response.status === 401) {
+        setErrorMessage("Invalid username or password.");
+      } else {
+        setErrorMessage("An unexpected error occurred. Please try again later.");
+      }
     }
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 flex justify-center items-center">
