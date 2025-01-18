@@ -5,23 +5,47 @@ import axios from "axios";
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
+  const validateForm = () => {
+    if (!username || !password) {
+      setErrorMessage("Username and password are required.");
+      return false;
+    }
+    return true;
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    // Reset error message
+    setErrorMessage("");
+
+    if (!validateForm()) return;
+
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
+      const response = await axios.post(`${BACKEND_URL}/api/auth/login`, {
         username,
         password,
       });
+
       const { token } = response.data;
-      localStorage.setItem("token", token); // Simpan token
+
+      // Save token to localStorage
+      localStorage.setItem("token", token);
+
+      // Display success message
       alert("Login successful!");
-      navigate("/admin"); // Pindah ke halaman admin
+      navigate("/admin"); // Navigate to admin page
     } catch (err) {
-      alert("Invalid credentials");
       console.error(err);
+      if (err.response && err.response.status === 401) {
+        setErrorMessage("Invalid username or password.");
+      } else {
+        setErrorMessage("An unexpected error occurred. Please try again later.");
+      }
     }
   };
 
@@ -34,6 +58,13 @@ function Login() {
         <h1 className="text-3xl font-bold mb-6 text-center text-indigo-600">
           Login
         </h1>
+
+        {errorMessage && (
+          <div className="bg-red-100 text-red-800 p-3 rounded mb-4">
+            {errorMessage}
+          </div>
+        )}
+
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Username</label>
           <input
