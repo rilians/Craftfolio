@@ -55,7 +55,7 @@ router.get("/", async (req, res) => {
 });
 
 // Endpoint untuk menambahkan proyek baru
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   console.log("Received POST data:", req.body); // Log data yang diterima
 
   const { error } = validateProject(req.body);
@@ -78,7 +78,7 @@ router.post("/", async (req, res) => {
 });
 
 // Endpoint untuk mengupdate proyek
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   console.log("Received PUT data:", req.body); // Log data yang diterima
 
   const { error } = validateProject(req.body);
@@ -110,7 +110,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Endpoint untuk menghapus proyek
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   console.log("Delete request for project ID:", req.params.id); // Log ID proyek
 
   try {
@@ -127,12 +127,17 @@ router.delete("/:id", async (req, res) => {
     console.error("Error deleting project:", err); // Log error hapus
     res.status(500).json({ error: "Failed to delete project" });
   }
+});
 
-  // Endpoint admin hanya bisa diakses jika token valid
-router.get("/admin", authMiddleware, (req, res) => {
-    res.json({ projects: [] }); // Ganti ini dengan logika data proyek Anda
-  });
-
+// Endpoint admin hanya bisa diakses jika token valid
+router.get("/admin", authMiddleware, async (req, res) => {
+  try {
+    const projects = await Project.find(); // Ganti ini dengan logika proyek Anda
+    res.json({ projects });
+  } catch (err) {
+    console.error("Error fetching admin projects:", err);
+    res.status(500).json({ error: "Failed to fetch admin projects" });
+  }
 });
 
 module.exports = router;
