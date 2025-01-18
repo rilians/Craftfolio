@@ -1,18 +1,18 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+function Login({ setIsLoggedIn }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
   const validateForm = () => {
     if (!username.trim() || !password.trim()) {
-      setErrorMessage("Username and password are required.");
+      setErrorMessage('Username and password are required.');
       return false;
     }
     return true;
@@ -20,7 +20,7 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessage('');
 
     if (!validateForm()) return;
 
@@ -31,17 +31,18 @@ function Login() {
       });
 
       const { token } = response.data;
-      if (!token) throw new Error("Token not received from server.");
+      if (!token) throw new Error('Token not received from server.');
 
-      localStorage.setItem("token", token);
-      alert("Login successful!");
-      navigate("/admin");
+      localStorage.setItem('token', token);
+      setIsLoggedIn(true);
+      alert('Login successful!');
+      navigate('/admin');
     } catch (err) {
-      console.error("Login error:", err);
+      console.error('Login error:', err);
       if (err.response && err.response.status === 401) {
-        setErrorMessage("Invalid username or password.");
+        setErrorMessage('Invalid username or password.');
       } else {
-        setErrorMessage("An unexpected error occurred. Please try again later.");
+        setErrorMessage('An unexpected error occurred. Please try again later.');
       }
     }
   };
