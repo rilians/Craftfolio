@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./styles.css"; // Pastikan file styles.css diimpor dengan benar
+import "./styles.css"; // Ensure the styles.css file is correctly imported
 
 const LoadingSpinner = () => <div className="spinner mx-auto"></div>;
 
@@ -10,7 +10,7 @@ function Projects() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [projectsPerPage] = useState(6); // Number of projects per page
   const [isLoading, setIsLoading] = useState(true);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
@@ -19,12 +19,12 @@ function Projects() {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(
-        `${BACKEND_URL}/api/projects?page=${currentPage}&limit=5&search=${search}&category=${selectedCategory}`
-      )
+      .get(`${BACKEND_URL}/api/projects?search=${search}&category=${selectedCategory}`)
       .then((res) => {
-        setProjects(res.data.projects || []);
-        setTotalPages(res.data.totalPages || 1);
+        const sortedProjects = (res.data.projects || []).sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        setProjects(sortedProjects);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -41,20 +41,20 @@ function Projects() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [currentPage, search, selectedCategory, BACKEND_URL]);
+  }, [search, selectedCategory, BACKEND_URL]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
-    setCurrentPage(1); // Reset ke halaman pertama saat search berubah
+    setCurrentPage(1); // Reset to the first page when search changes
   };
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
-    setCurrentPage(1); // Reset ke halaman pertama saat kategori berubah
+    setCurrentPage(1); // Reset to the first page when category changes
   };
 
   const handlePageChange = (page) => {
-    if (page > 0 && page <= totalPages) {
+    if (page > 0 && page <= Math.ceil(filteredProjects.length / projectsPerPage)) {
       setCurrentPage(page);
     }
   };
@@ -62,6 +62,14 @@ function Projects() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const filteredProjects = projects.filter((project) =>
+    selectedCategory === "All" ? true : project.category === selectedCategory
+  );
+
+  const indexOfLastProject = currentPage * projectsPerPage;
+  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
+  const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 text-white py-10">
@@ -94,8 +102,8 @@ function Projects() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
         {isLoading ? (
           <LoadingSpinner />
-        ) : projects.length > 0 ? (
-          projects.map((project) => (
+        ) : currentProjects.length > 0 ? (
+          currentProjects.map((project) => (
             <div
               key={project._id}
               className="bg-white rounded-lg shadow-lg p-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
@@ -125,17 +133,17 @@ function Projects() {
       <div className="flex justify-center mt-6">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1 || projects.length === 0}
+          disabled={currentPage === 1 || currentProjects.length === 0}
           className="p-2 bg-purple-700 hover:bg-purple-800 text-white rounded disabled:bg-gray-400"
         >
           Prev
         </button>
         <span className="mx-4">
-          Page {projects.length === 0 ? 0 : currentPage} of {projects.length === 0 ? 0 : totalPages}
+          Page {currentProjects.length === 0 ? 0 : currentPage} of {Math.ceil(filteredProjects.length / projectsPerPage)}
         </span>
         <button
           onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages || projects.length === 0}
+          disabled={currentPage === Math.ceil(filteredProjects.length / projectsPerPage) || currentProjects.length === 0}
           className="p-2 bg-purple-700 hover:bg-purple-800 text-white rounded disabled:bg-gray-400"
         >
           Next
