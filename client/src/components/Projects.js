@@ -19,8 +19,7 @@ function Projects() {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(
-        `http://localhost:5000/api/projects?page=${currentPage}&limit=5&search=${search}&category=${selectedCategory}`
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/projects?page=${currentPage}&limit=5&search=${search}&category=${selectedCategory}`
       )
       .then((res) => {
         setProjects(res.data.projects);
