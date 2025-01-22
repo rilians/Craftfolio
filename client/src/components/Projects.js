@@ -19,8 +19,7 @@ function Projects() {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/projects?page=${currentPage}&limit=5&search=${search}&category=${selectedCategory}`
-      )
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/projects?page=${currentPage}&limit=5&search=${search}&category=${selectedCategory}`)
       .then((res) => {
         setProjects(res.data.projects);
         setTotalPages(res.data.totalPages);
@@ -104,7 +103,7 @@ function Projects() {
               className="bg-white rounded-lg shadow-lg p-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
             >
               <img
-                src={`http://localhost:5000${project.thumbnail}`}
+                src={project.thumbnail}
                 alt={project.title}
                 className="w-full h-48 object-cover rounded"
               />
