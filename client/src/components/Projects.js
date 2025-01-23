@@ -65,7 +65,7 @@ function Projects() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 text-white py-10">
-      <h1 className="text-4xl font-bold text-center mb-10">My Projects</h1>
+      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-10">My Projects</h1>
 
       <div className="text-center mb-6">
         <input
@@ -88,10 +88,10 @@ function Projects() {
               {category}
             </option>
           ))}
-                </select>
+        </select>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 max-w-7xl mx-auto px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {isLoading ? (
           <LoadingSpinner />
         ) : projects.length > 0 ? (
@@ -142,7 +142,7 @@ function Projects() {
         </button>
       </div>
 
-      {showScrollToTop && (
+      {showScroll toTop && (
         <button
           onClick={scrollToTop}
           className="fixed bottom-10 right-10 bg-indigo-600 text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 hover:bg-indigo-800"
@@ -155,4 +155,3 @@ function Projects() {
 }
 
 export default Projects;
-
