@@ -23,7 +23,7 @@ const validateProject = (data) => {
 
 // Endpoint untuk mendapatkan semua proyek berdasarkan kategori atau pencarian
 router.get("/", async (req, res) => {
-  const { category, search, page = 1, limit = 10 } = req.query; // Mengubah limit menjadi 10 atau sesuai kebutuhan
+  const { category, search, page = 1, limit = 6 } = req.query; // Ubah limit menjadi 6
 
   const query = {};
 
@@ -51,6 +51,7 @@ router.get("/", async (req, res) => {
     res.status(500).send(error);
   }
 });
+
 
 
 // Endpoint untuk menambahkan proyek baru
