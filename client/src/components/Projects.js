@@ -20,7 +20,7 @@ function Projects() {
     setIsLoading(true);
     axios
       .get(
-        `${BACKEND_URL}/api/projects?page=${currentPage}&limit=5&search=${search}&category=${selectedCategory}`
+        `${BACKEND_URL}/api/projects?page=${currentPage}&limit=6&search=${search}&category=${selectedCategory}` // Perbarui limit menjadi 6
       )
       .then((res) => {
         setProjects(res.data.projects || []);
@@ -88,10 +88,10 @@ function Projects() {
               {category}
             </option>
           ))}
-        </select>
+                </select>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
+      <div className="grid grid-cols-3 gap-4 max-w-7xl mx-auto px-4">
         {isLoading ? (
           <LoadingSpinner />
         ) : projects.length > 0 ? (
@@ -155,3 +155,4 @@ function Projects() {
 }
 
 export default Projects;
+
