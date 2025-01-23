@@ -23,36 +23,35 @@ const validateProject = (data) => {
 
 // Endpoint untuk mendapatkan semua proyek berdasarkan kategori atau pencarian
 router.get("/", async (req, res) => {
-  const { category, search, page = 1, limit = 5 } = req.query;
+  const { category, search, page = 1, limit = 10 } = req.query; // Mengubah limit menjadi 10 atau sesuai kebutuhan
 
   const query = {};
 
   if (category && category !== "All") {
     query.category = category;
   }
-
   if (search) {
-    query.title = { $regex: search, $options: "i" };
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } }
+    ];
   }
-
-  console.log("Fetching projects with query:", query); // Log query
 
   try {
-    const totalProjects = await Project.countDocuments(query);
     const projects = await Project.find(query)
       .skip((page - 1) * limit)
-      .limit(Number(limit));
-
-    console.log(`Fetched ${projects.length} projects.`); // Log jumlah proyek
-
-    const totalPages = Math.ceil(totalProjects / limit);
-
-    res.json({ projects, totalPages });
-  } catch (err) {
-    console.error("Error fetching projects:", err); // Log error
-    res.status(500).json({ error: "Failed to fetch projects" });
+      .limit(limit);
+    const totalProjects = await Project.countDocuments(query);
+    res.json({
+      projects: projects,
+      totalPages: Math.ceil(totalProjects / limit),
+      currentPage: page
+    });
+  } catch (error) {
+    res.status(500).send(error);
   }
 });
+
 
 // Endpoint untuk menambahkan proyek baru
 router.post("/", authMiddleware, async (req, res) => {
