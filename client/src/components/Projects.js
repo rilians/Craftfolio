@@ -20,7 +20,7 @@ function Projects() {
     setIsLoading(true);
     axios
       .get(
-        `${BACKEND_URL}/api/projects?page=${currentPage}&limit=6&search=${search}&category=${selectedCategory}` // Perbarui limit menjadi 6
+        `${BACKEND_URL}/api/projects?page=${currentPage}&limit=6&search=${search}&category=${selectedCategory}`
       )
       .then((res) => {
         setProjects(res.data.projects || []);
@@ -45,12 +45,12 @@ function Projects() {
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
-    setCurrentPage(1); // Reset ke halaman pertama saat search berubah
+    setCurrentPage(1);
   };
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
-    setCurrentPage(1); // Reset ke halaman pertama saat kategori berubah
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => {
@@ -84,9 +84,7 @@ function Projects() {
           className="p-2 bg-white text-black rounded shadow focus:outline-none focus:ring-2 focus:ring-purple-300"
         >
           {categories.map((category, index) => (
-            <option key={index} value={category}>
-              {category}
-            </option>
+            <option key={index} value={category}>{category}</option>
           ))}
         </select>
       </div>
@@ -142,7 +140,7 @@ function Projects() {
         </button>
       </div>
 
-      {showScroll toTop && (
+      {showScrollToTop && (
         <button
           onClick={scrollToTop}
           className="fixed bottom-10 right-10 bg-indigo-600 text-white p-3 rounded-full shadow-lg transition-transform transform hover:scale-110 hover:bg-indigo-800"
